@@ -1,4 +1,4 @@
-package org;
+package org.entity;
 
 import java.util.Date;
 
@@ -8,16 +8,24 @@ import java.util.Date;
 public class User {
     private String number;
     private String userName;
-    private Integer state;
+    private String state;
     private Date createTime;
     private Date lastLogin;
-    private Integer type;
+    private String typeName;
 
-    public Integer getState() {
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public String getState() {
         return state;
     }
 
-    public void setState(Integer state) {
+    public void setState(String state) {
         this.state = state;
     }
 
@@ -37,13 +45,6 @@ public class User {
         this.lastLogin = lastLogin;
     }
 
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
-    }
 
     public String getNumber() {
         return number;

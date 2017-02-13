@@ -9,7 +9,7 @@
     <title>首页</title>
     <link rel="stylesheet" type="text/css" href="${ctx}/static/css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css"/>
-
+    <link rel="stylesheet" type="text/css" href="${ctx}/static/css/daterangepicker.css">
     <link href="${ctx}/static/css/main.css" rel="stylesheet">
 
     <script src="${ctx}/static/js/jquery.js"></script>
@@ -23,6 +23,10 @@
     <script src="${ctx}/static/js/bootstrap-datetimepicker.min.js"></script>
 
     <script src="${ctx}/static/js/handlebars-v3.0.1.js"></script>
+
+    <script type="text/javascript" src="${ctx}/static/js/moment.min.js"></script>
+
+    <script type="text/javascript" src="${ctx}/static/js/daterangepicker.js"></script>
 </head>
 <body>
 
@@ -31,8 +35,9 @@
 </div>-->
 <ol class="breadcrumb">
     <li><button class="btn btn-table" data-toggle="modal" data-target="#myModal">查询</button></li>
-    <li><button class="btn btn-table" data-toggle="modal" data-target="#myModal">新增</button></li>
+    <li><a href="${ctx}/user/add">新增</a></li>
     <li><button id="delete">删除</button></li>
+    <li><button id="update">修改</button></li>
 </ol>
 <div class="container">
     <table id="user" class="display" cellspacing="0" width="100%">
@@ -51,37 +56,87 @@
     </table>
 </div>
 <!-- Button trigger modal -->
-
-
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">新增</h4>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <input type="text" class="form-control" id="number" placeholder="编码">
-                </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" id="userName" placeholder="姓名">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-info" id="initData">添加模拟数据</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary" id="save">保存</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script type="text/javascript">
 
     $(document).ready(function() {
+
+        $('#config-demo').daterangepicker({
+            "showDropdowns": true,
+            "showWeekNumbers": true,
+            "showISOWeekNumbers": true,
+            "timePicker": true,
+            "timePicker24Hour": true,
+            "timePickerSeconds": true,
+            "autoApply": true,
+            "dateLimit": {
+                "days": 7
+            },
+            "ranges": {
+                "Today": [
+                    "2017-02-13T03:54:55.305Z",
+                    "2017-02-13T03:54:55.305Z"
+                ],
+                "Yesterday": [
+                    "2017-02-12T03:54:55.305Z",
+                    "2017-02-12T03:54:55.305Z"
+                ],
+                "Last 7 Days": [
+                    "2017-02-07T03:54:55.305Z",
+                    "2017-02-13T03:54:55.305Z"
+                ],
+                "Last 30 Days": [
+                    "2017-01-15T03:54:55.306Z",
+                    "2017-02-13T03:54:55.306Z"
+                ],
+                "This Month": [
+                    "2017-01-31T16:00:00.000Z",
+                    "2017-02-28T15:59:59.999Z"
+                ],
+                "Last Month": [
+                    "2016-12-31T16:00:00.000Z",
+                    "2017-01-31T15:59:59.999Z"
+                ]
+            },
+            "locale": {
+                "direction": "ltr",
+                "format": "MM/DD/YYYY HH:mm",
+                "separator": " - ",
+                "applyLabel": "Apply",
+                "cancelLabel": "Cancel",
+                "fromLabel": "From",
+                "toLabel": "To",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "Su",
+                    "Mo",
+                    "Tu",
+                    "We",
+                    "Th",
+                    "Fr",
+                    "Sa"
+                ],
+                "monthNames": [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December"
+                ],
+                "firstDay": 1
+            },
+            "alwaysShowCalendars": true,
+            "startDate": "02/02/2017",
+            "endDate": "02/10/2017"
+        }, function(start, end, label) {
+            console.log("New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')");
+        });
 
         $("#user").dataTable({
             "bProcessing": false,                   // 是否显示取数据时的那个等待提示
@@ -93,7 +148,7 @@
                 {"data":"state"},
                 {"data":"createTime"},
                 {"data":"lastLogin"},
-                {"data":"type"}
+                {"data":"typeName"}
             ],
             "fnServerData": retrieveData            // 获取数据的处理函数
         });
@@ -148,6 +203,31 @@
                 }
             });
         } );
+
+        $('#add').click(function(){
+            $.ajax({
+                url : "${ctx}/user/add",
+                type : 'post',
+                async : false,
+                success : function(result) {
+                    if (result.success){
+                        alert("删除成功");
+                        window.location.reload();
+                    }
+                },
+                error : function(msg) {
+                }
+            });
+        });
+
+        $('#update').click( function () {
+            if (id==null){
+                alert("请选中额！");
+            }else {
+                window.location.href="${ctx}/user/update/"+id;
+            }
+        } );
+
     } );
 </script>
 </body>

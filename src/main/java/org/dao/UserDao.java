@@ -1,10 +1,12 @@
 package org.dao;
 
-import org.User;
+import org.entity.User;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -29,5 +31,38 @@ public class UserDao {
     public void delete(int id){
         String sql="delete from user where number=?";
         f.update(sql,id);
+    }
+
+    //增加数据
+    public void add(User user){
+        String sql="insert into user values(?,?,?,?,?,?)";
+        Timestamp timeStamp = new Timestamp(user.getCreateTime().getTime());
+        Timestamp timeStamp1 = new Timestamp(user.getLastLogin().getTime());
+        f.update(sql,user.getNumber(),user.getUserName(),user.getState()
+        ,timeStamp,timeStamp1,user.getTypeName());
+    }
+
+/*    public List<UserType> listUserType(){
+        String sql="select * from userType";
+        List<UserType> userTypeList=f.query(sql,new BeanPropertyRowMapper(
+                UserType.class));
+        return userTypeList;
+    }*/
+
+    public User findById(String id){
+        String sql="select * from user where number=?";
+        Object[] args = new Object[] {id};
+        Object user=f.queryForObject(sql,args,new BeanPropertyRowMapper(
+                User.class));
+        return (User)user;
+    }
+
+    public void update(User user){
+        String sql="update user set userName=?,state=?,createTime=?,lastLogin=?,typeName=? where number=?";
+
+        Timestamp timeStamp = new Timestamp(user.getCreateTime().getTime());
+        Timestamp timeStamp1 = new Timestamp(user.getLastLogin().getTime());
+        System.out.println("test:"+user.getTypeName());
+        f.update(sql,user.getUserName(),user.getState(),timeStamp,timeStamp1,user.getTypeName(),user.getNumber());
     }
 }
