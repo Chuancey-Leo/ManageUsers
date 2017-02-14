@@ -30,6 +30,8 @@ import java.util.Map;
 public class UserController {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     UserDao userDao=new UserDao();
+
+    //首页
     @RequestMapping("/index")
     public ModelAndView testFreeMarker(HttpServletRequest request){
 
@@ -64,6 +66,7 @@ public class UserController {
         return null;
     }
 
+    //删除操作
     @RequestMapping("/delete")
     public String delete(@RequestParam(value = "id")Integer id, HttpServletResponse response)throws Exception{
         userDao.delete(id);
@@ -82,6 +85,7 @@ public class UserController {
         return mv;
     }
 
+    //增加操作
     @RequestMapping("/addData")
     public String addData(@RequestParam(value = "id")String number,
                           @RequestParam(value = "type")String type,
@@ -122,6 +126,7 @@ public class UserController {
         return mv;
     }
 
+    //更新操作
     @RequestMapping("/updateData")
     public String updateData(@RequestParam(value = "id")String number,
                           @RequestParam(value = "type")String type,
@@ -153,6 +158,7 @@ public class UserController {
         return null;
     }
 
+    //搜索
     @RequestMapping("/search")
     public void search(@RequestParam(value = "id")String number,
                        @RequestParam(value = "type")String typeName,

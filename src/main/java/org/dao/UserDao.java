@@ -50,6 +50,7 @@ public class UserDao {
         return userTypeList;
     }*/
 
+    //得到user
     public User findById(String id){
         String sql="select * from user where number=?";
         Object[] args = new Object[] {id};
@@ -58,6 +59,7 @@ public class UserDao {
         return (User)user;
     }
 
+    //更新
     public void update(User user){
         String sql="update user set userName=?,state=?,createTime=?,lastLogin=?,typeName=? where number=?";
 
@@ -67,6 +69,7 @@ public class UserDao {
         f.update(sql,user.getUserName(),user.getState(),timeStamp,timeStamp1,user.getTypeName(),user.getNumber());
     }
 
+    //模糊查询
     public List<User> search(User user){
         Timestamp timeStamp = new Timestamp(user.getCreateTime().getTime());
         Timestamp timeStamp1 = new Timestamp(user.getLastLogin().getTime());
