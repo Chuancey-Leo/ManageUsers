@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,5 +65,24 @@ public class UserDao {
         Timestamp timeStamp1 = new Timestamp(user.getLastLogin().getTime());
         System.out.println("test:"+user.getTypeName());
         f.update(sql,user.getUserName(),user.getState(),timeStamp,timeStamp1,user.getTypeName(),user.getNumber());
+    }
+
+    public List<User> search(User user){
+        Timestamp timeStamp = new Timestamp(user.getCreateTime().getTime());
+        Timestamp timeStamp1 = new Timestamp(user.getLastLogin().getTime());
+        String sql="select * from user where 1=1";
+        List<Object> queryList=new ArrayList<Object>();
+        sql += " and user.number like ? ";
+        queryList.add("%" + user.getNumber() + "%");
+        sql += " and user.userName like ? ";
+        queryList.add("%" + user.getUserName() + "%");
+        sql += " and user.state = ? ";
+        queryList.add(user.getState());
+        sql += " and user.createTime = ? ";
+        queryList.add(timeStamp);
+        sql += " and user.lastLogin = ? ";
+        queryList.add(timeStamp1);
+        return f.query(sql, queryList.toArray(),new BeanPropertyRowMapper(
+                User.class));
     }
 }

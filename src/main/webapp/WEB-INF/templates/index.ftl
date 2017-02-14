@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>首页</title>
-    <link rel="stylesheet" type="text/css" href="${ctx}/static/css/bootstrap.min.css"/>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css"/>
     <link rel="stylesheet" type="text/css" href="${ctx}/static/css/daterangepicker.css">
     <link href="${ctx}/static/css/main.css" rel="stylesheet">
@@ -34,12 +34,25 @@
 
 </div>-->
 <ol class="breadcrumb">
-    <li><button class="btn btn-table" data-toggle="modal" data-target="#myModal">查询</button></li>
-    <li><a href="${ctx}/user/add">新增</a></li>
-    <li><button id="delete">删除</button></li>
-    <li><button id="update">修改</button></li>
+    <li><button class="btn btn-table" onclick="location='${ctx}/user/index'">主页</button></li>
+    <li><button class="btn btn-table" onclick="location='${ctx}/user/add'">添加</button></li>
+    <li><button class="btn btn-table" id="delete">删除</button></li>
+    <li><button class="btn btn-table" id="update">修改</button></li>
 </ol>
 <div class="container">
+        <input type="text" id="number" name="number" class="form-control" placeholder="number">
+        <input type="text" id="userName" name="number" class="form-control" placeholder="userName">
+        <input type="radio" name="state" value="1">封存</input>
+        <input type="radio" name="state" value="2">解封</input>
+
+        <input type="text" name="start" id="start" class="form-control">
+        <input type="text" name="last" id="last" class="form-control">
+        <select id="typeName" name="typeName" type="text" class="form-control select2" placeholder="吸烟...">
+            <option>管理员</option>
+            <option>超级管理员</option>
+            <option>普通用户</option>
+        </select><br><br>
+        <button type="submit" id="search" class="btn btn-table">搜索</button>
     <table id="user" class="display" cellspacing="0" width="100%">
         <thead>
         <tr>
@@ -51,7 +64,7 @@
             <th>账号类型</th>
         </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="usertable"></tbody>
         <!-- tbody是必须的 -->
     </table>
 </div>
@@ -60,46 +73,15 @@
 
     $(document).ready(function() {
 
-        $('#config-demo').daterangepicker({
-            "showDropdowns": true,
-            "showWeekNumbers": true,
-            "showISOWeekNumbers": true,
+
+        $('#start').daterangepicker({
+            "singleDatePicker": true,
             "timePicker": true,
             "timePicker24Hour": true,
             "timePickerSeconds": true,
-            "autoApply": true,
-            "dateLimit": {
-                "days": 7
-            },
-            "ranges": {
-                "Today": [
-                    "2017-02-13T03:54:55.305Z",
-                    "2017-02-13T03:54:55.305Z"
-                ],
-                "Yesterday": [
-                    "2017-02-12T03:54:55.305Z",
-                    "2017-02-12T03:54:55.305Z"
-                ],
-                "Last 7 Days": [
-                    "2017-02-07T03:54:55.305Z",
-                    "2017-02-13T03:54:55.305Z"
-                ],
-                "Last 30 Days": [
-                    "2017-01-15T03:54:55.306Z",
-                    "2017-02-13T03:54:55.306Z"
-                ],
-                "This Month": [
-                    "2017-01-31T16:00:00.000Z",
-                    "2017-02-28T15:59:59.999Z"
-                ],
-                "Last Month": [
-                    "2016-12-31T16:00:00.000Z",
-                    "2017-01-31T15:59:59.999Z"
-                ]
-            },
             "locale": {
                 "direction": "ltr",
-                "format": "MM/DD/YYYY HH:mm",
+                "format": "YYYY-MM-DD HH:MM:SS",
                 "separator": " - ",
                 "applyLabel": "Apply",
                 "cancelLabel": "Cancel",
@@ -131,14 +113,61 @@
                 ],
                 "firstDay": 1
             },
-            "alwaysShowCalendars": true,
-            "startDate": "02/02/2017",
-            "endDate": "02/10/2017"
+            "startDate": "02/07/2017",
+            "endDate": "02/13/2017"
+        }, function(start, end, label) {
+            console.log("New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')");
+        });
+
+        $('#last').daterangepicker({
+            "singleDatePicker": true,
+            "timePicker": true,
+            "timePicker24Hour": true,
+            "timePickerSeconds": true,
+            "locale": {
+                "direction": "ltr",
+                "format": "YYYY-MM-DD HH:MM:SS",
+                "separator": " - ",
+                "applyLabel": "Apply",
+                "cancelLabel": "Cancel",
+                "fromLabel": "From",
+                "toLabel": "To",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "Su",
+                    "Mo",
+                    "Tu",
+                    "We",
+                    "Th",
+                    "Fr",
+                    "Sa"
+                ],
+                "monthNames": [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December"
+                ],
+                "firstDay": 1
+            },
+            "startDate": "02/07/2017",
+            "endDate": "02/13/2017"
         }, function(start, end, label) {
             console.log("New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')");
         });
 
         $("#user").dataTable({
+            "bInfo": false,
+            "searching":false,
+            "bPaginate" : false,
             "bProcessing": false,                   // 是否显示取数据时的那个等待提示
             "bServerSide": true,                    //这个用来指明是通过服务端来取数据
             "sAjaxSource": "${ctx}/user/list",      //这个是请求的地址
@@ -146,8 +175,8 @@
                 {"data": "number"},
                 {"data":"userName"},
                 {"data":"state"},
-                {"data":"createTime"},
-                {"data":"lastLogin"},
+                {"data":"createTimeStr"},
+                {"data":"lastLoginStr"},
                 {"data":"typeName"}
             ],
             "fnServerData": retrieveData            // 获取数据的处理函数
@@ -173,62 +202,139 @@
     $(document).ready(function() {
         var table = $('#user').DataTable();
         var id;
-        $('#user tbody').on( 'click', 'tr', function () {
-            if ( $(this).hasClass('selected') ) {
+        $('#user tbody').on('click', 'tr', function () {
+            if ($(this).hasClass('selected')) {
                 $(this).removeClass('selected');
-                id=null;
+                id = null;
             }
             else {
                 table.$('tr.selected').removeClass('selected');
                 $(this).addClass('selected');
                 //alert($(this));
-                id=$(this).find("td:first").text();
+                id = $(this).find("td:first").text();
             }
-        } );
+        });
 
-        $('#delete').click( function () {
+        $('#delete').click(function () {
             $.ajax({
-                url : "${ctx}/user/delete",
-                data : {"id":id},
-                type : 'post',
-                dataType : 'json',
-                async : false,
-                success : function(result) {
-                    if (result.success){
+                url: "${ctx}/user/delete",
+                data: {"id": id},
+                type: 'post',
+                dataType: 'json',
+                async: false,
+                success: function (result) {
+                    if (result.success) {
                         alert("删除成功");
                         window.location.reload();
                     }
                 },
-                error : function(msg) {
-                }
-            });
-        } );
-
-        $('#add').click(function(){
-            $.ajax({
-                url : "${ctx}/user/add",
-                type : 'post',
-                async : false,
-                success : function(result) {
-                    if (result.success){
-                        alert("删除成功");
-                        window.location.reload();
-                    }
-                },
-                error : function(msg) {
+                error: function (msg) {
                 }
             });
         });
 
-        $('#update').click( function () {
-            if (id==null){
-                alert("请选中额！");
-            }else {
-                window.location.href="${ctx}/user/update/"+id;
-            }
-        } );
+        $('#add').click(function () {
+            $.ajax({
+                url: "${ctx}/user/add",
+                type: 'post',
+                async: false,
+                success: function (result) {
+                    if (result.success) {
+                        alert("删除成功");
+                        window.location.reload();
+                    }
+                },
+                error: function (msg) {
+                }
+            });
+        });
 
-    } );
+        $('#update').click(function () {
+            if (id == null) {
+                alert("请选中额！");
+            } else {
+                window.location.href = "${ctx}/user/update/" + id;
+            }
+        });
+
+        $('#search').click(function () {
+            var state = $("input[name='state']:checked").val();
+            var type = $("#typeName").val();
+            var number = $('#number').val();
+            var userName = $('#userName').val();
+            var start = $("#start").val();
+            var last = $("#last").val();
+            if (state==null||state==''){
+                alert("有查询条件未填写！");
+                return false;
+            }else if(type==null||type==''){
+                alert("有查询条件未填写！");
+                return false;
+            }else if (number==null||number==''){
+                alert("有查询条件未填写！");
+                return false;
+            }else if (userName==null||userName==''){
+                alert("有查询条件未填写！");
+                return false;
+            }else if (start==null||start==''){
+                alert("有查询条件未填写！");
+                return false;
+            }else if (last==null||last==''){
+                alert("有查询条件未填写！");
+                return false;
+            }
+            $.ajax({
+                url: "${ctx}/user/search",
+                data: {
+                    "id": number, "type": type, "state": state, "userName": userName,
+                    "start": start,
+                    "last": last
+                },
+                type: 'post',
+                dataType: 'json',
+                async: false,
+                success: function (result) {
+                    tableappend(result)
+
+                },
+                error: function (msg) {
+                }
+            });
+        });
+
+        //动态刷新表格
+        function tableappend(result) {
+            var studentlist = result.userList;
+
+            $("#usertable").html("");
+
+            for (var i = 0; i < studentlist.length; i++) {
+                var addtr = document.createElement("tr");
+                var addtd1 = document.createElement("td");
+                addtd1.innerHTML = studentlist[i].number;
+
+                var addtd2 = document.createElement("td");
+                addtd2.innerHTML = studentlist[i].userName;
+                var addtd3 = document.createElement("td");
+                addtd3.innerHTML = studentlist[i].state;
+                var addtd4 = document.createElement("td");
+                addtd4.innerHTML = studentlist[i].createTimeStr;
+                var addtd5 = document.createElement("td");
+                addtd5.innerHTML = studentlist[i].lastLoginStr;
+                var addtd6 = document.createElement("td");
+                addtd6.innerHTML = studentlist[i].typeName;
+                //把创建的td对象加入tr中去
+                addtr.appendChild(addtd1);
+                addtr.appendChild(addtd2);
+                addtr.appendChild(addtd3);
+                addtr.appendChild(addtd4);
+                addtr.appendChild(addtd5);
+                addtr.appendChild(addtd6);
+                document.getElementById("usertable").appendChild(addtr);
+            }
+        }
+    });
 </script>
+
 </body>
 </html>

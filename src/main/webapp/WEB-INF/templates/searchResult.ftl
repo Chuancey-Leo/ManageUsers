@@ -9,8 +9,9 @@
     <title>首页</title>
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css"/>
-
     <link rel="stylesheet" type="text/css" href="${ctx}/static/css/daterangepicker.css">
+    <link href="${ctx}/static/css/main.css" rel="stylesheet">
+
     <script src="${ctx}/static/js/jquery.js"></script>
 
     <script src="${ctx}/static/js/jquery.dataTables.min.js"></script>
@@ -27,66 +28,53 @@
 
     <script type="text/javascript" src="${ctx}/static/js/daterangepicker.js"></script>
 </head>
-<body style="margin: 60px 0">
+<body>
 
+<!--<div class="container">
+
+</div>-->
+<ol class="breadcrumb">
+    <li><button class="btn btn-table" onclick="location='${ctx}/user/add'">添加</button></li>
+    <li><button class="btn btn-table" id="delete">删除</button></li>
+    <li><button class="btn btn-table" id="update">修改</button></li>
+</ol>
 <div class="container">
+    <form action="${ctx}/user/search" method="post">
+        <input type="text" id="number" name="number" class="form-control" placeholder="number">
+        <input type="text" id="userName" name="number" class="form-control" placeholder="userName">
+        <input type="radio" name="state" value="1">封存</input>
+        <input type="radio" name="state" value="2">解封</input>
 
-    <h1 style="margin: 0 0 20px 0"><a href="${ctx}/user/index">回到主页</a></h1>
-
-    <div class="well configurator">
-            <div class="row">
-
-                <div class="col-md-4">
-
-                    <div class="form-group">
-                        <label for="parentEl">编码</label>
-                        <input type="text" class="form-control" id="number">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="parentEl">姓名</label>
-                        <input type="text" class="form-control" id="userName" placeholder="body">
-                    </div>
-                    <div class="form-group">
-                        <input type="radio" name="state" value="1">封存</input>
-                        <input type="radio" name="state" value="2">解封</input>
-                    </div>
-
-                    <div class="form-group">
-                        <select id="typeName" name="typeName" type="text" class="form-control select2" placeholder="吸烟...">
-                            <option>管理员</option>
-                            <option>超级管理员</option>
-                            <option>普通用户</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                            <h4>Your Date Range Picker</h4>
-                            <input type="text" id="start" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <h4>Your Date Range Picker</h4>
-                        <input type="text" id="last" class="form-control">
-                    </div>
-
-                </div>
-
-            </div>
-            <button id="addData">添加</button>
-    </div>
-
-
+        <input type="text" name="start" id="start" class="form-control">
+        <input type="text" name="last" id="last" class="form-control">
+        <select id="typeName" name="typeName" type="text" class="form-control select2" placeholder="吸烟...">
+            <option>管理员</option>
+            <option>超级管理员</option>
+            <option>普通用户</option>
+        </select><br><br>
+        <button type="submit" class="btn btn-table" id="search">搜索</button>
+    </form>
+    <table id="user" class="display" cellspacing="0" width="100%">
+        <thead>
+        <tr>
+            <th>编码</th>
+            <th>姓名</th>
+            <th>状态</th>
+            <th>创建时间</th>
+            <th>最后登录</th>
+            <th>账号类型</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+        <!-- tbody是必须的 -->
+    </table>
 </div>
-
-<style type="text/css">
-    .demo { position: relative; }
-    .demo i {
-        position: absolute; bottom: 10px; right: 24px; top: auto; cursor: pointer;
-    }
-</style>
-
+<!-- Button trigger modal -->
 <script type="text/javascript">
+
     $(document).ready(function() {
+
+
         $('#start').daterangepicker({
             "singleDatePicker": true,
             "timePicker": true,
@@ -177,39 +165,106 @@
             console.log("New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')");
         });
 
-        $('#addData').click( function () {
+        $("#user").dataTable({
+            "aaData": data,
+            "aoColumns": [
+                { data: 'number'},//这里还可以用mDataProp
+                { data: 'userName'},
+                { data: 'state'},
+                { data: 'createTime'},
+                { data: 'lastLogin'},
+                { data: 'typeName'}
+            ]
+        });
+    });
+
+    // 3个参数的名字可以随便命名,但必须是3个参数,少一个都不行
+    function retrieveData( sSource,aoData, fnCallback) {
+        $.ajax({
+            url : sSource,                              //这个就是请求地址对应sAjaxSource
+            data : {"aoData":JSON.stringify(aoData)},   //这个是把datatable的一些基本数据传给后台,比如起始位置,每页显示的行数 ,分页,排序,查询等的值
+            type : 'post',
+            dataType : 'json',
+            async : false,
+            success : function(result) {
+                fnCallback(result);                     //把返回的数据传给这个方法就可以了,datatable会自动绑定数据的
+            },
+            error : function(msg) {
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        var table = $('#user').DataTable();
+        var id;
+        $('#user tbody').on( 'click', 'tr', function () {
+            if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+                id=null;
+            }
+            else {
+                table.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+                //alert($(this));
+                id=$(this).find("td:first").text();
+            }
+        } );
+
+        $('#delete').click( function () {
+            $.ajax({
+                url : "${ctx}/user/delete",
+                data : {"id":id},
+                type : 'post',
+                dataType : 'json',
+                async : false,
+                success : function(result) {
+                    if (result.success){
+                        alert("删除成功");
+                        window.location.reload();
+                    }
+                },
+                error : function(msg) {
+                }
+            });
+        } );
+
+        $('#add').click(function(){
+            $.ajax({
+                url : "${ctx}/user/add",
+                type : 'post',
+                async : false,
+                success : function(result) {
+                    if (result.success){
+                        alert("删除成功");
+                        window.location.reload();
+                    }
+                },
+                error : function(msg) {
+                }
+            });
+        });
+
+        $('#update').click( function () {
+            if (id==null){
+                alert("请选中额！");
+            }else {
+                window.location.href="${ctx}/user/update/"+id;
+            }
+        } );
+
+        $('#search').click( function () {
             var state=$("input[name='state']:checked").val();
             var type = $("#typeName").val();
             var number=$('#number').val();
             var userName=$('#userName').val();
             var start = $("#start").val();
             var last = $("#last").val();
-
-            if (state==null||state==''){
-                alert("有条件未填写！");
-                return false;
-            }else if(type==null||type==''){
-                alert("有条件未填写！");
-                return false;
-            }else if (number==null||number==''){
-                alert("有条件未填写！");
-                return false;
-            }else if (userName==null||userName==''){
-                alert("有条件未填写！");
-                return false;
-            }else if (start==null||start==''){
-                alert("有条件未填写！");
-                return false;
-            }else if (last==null||last==''){
-                alert("有条件未填写！");
-                return false;
-            }
-
+            alert(type);
             $.ajax({
                 url : "${ctx}/user/addData",
                 data : {"id":number,"type":type,"state":state,"userName":userName,
-                "start":start,
-                "last":last},
+                    "start":start,
+                    "last":last},
                 type : 'post',
                 dataType : 'json',
                 async : false,
@@ -223,11 +278,8 @@
                 }
             });
         } );
-    });
 
-
-
+    } );
 </script>
-
 </body>
 </html>

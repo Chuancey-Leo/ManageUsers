@@ -184,7 +184,25 @@
             var userName=$('#userName').val();
             var start = $("#start").val();
             var last = $("#last").val();
-            alert(type);
+            if (state==null||state==''){
+                alert("有条件未填写！");
+                return false;
+            }else if(type==null||type==''){
+                alert("有条件未填写！");
+                return false;
+            }else if (number==null||number==''){
+                alert("有条件未填写！");
+                return false;
+            }else if (userName==null||userName==''){
+                alert("有条件未填写！");
+                return false;
+            }else if (start==null||start==''){
+                alert("有条件未填写！");
+                return false;
+            }else if (last==null||last==''){
+                alert("有条件未填写！");
+                return false;
+            }
             $.ajax({
                 url : "${ctx}/user/updateData",
                 data : {"id":number,"type":type,"state":state,"userName":userName,
